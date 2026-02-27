@@ -867,6 +867,7 @@ class CompletePeriodicTableDashboard:
         with col2:
             rgb = self.get_element_rgb(element_symb)
             rgb_hex = f'#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}'
+            rgba_color = f'rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, 0.25)'  # Pour la transparence
             
             st.markdown(f"""
             <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, {rgb_hex}20, {rgb_hex}50); border-radius: 10px; border: 2px solid {rgb_hex};">
@@ -938,14 +939,17 @@ class CompletePeriodicTableDashboard:
                     if 380 <= raie_pos <= 780:
                         spectre += 0.4 * np.exp(-0.5 * ((lambda_range - raie_pos) / 8)**2)
             
+            # Correction : utiliser rgba() au lieu de concaténer hex
+            rgba_fill = f'rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, 0.25)'
+            
             fig = go.Figure()
             fig.add_trace(go.Scatter(
                 x=lambda_range, y=spectre,
                 mode='lines',
-                line=dict(color=rgb_hex, width=3),
+                line=dict(color=f'rgb({rgb[0]}, {rgb[1]}, {rgb[2]})', width=3),
                 name=f"Spectre {element_symb}",
                 fill='tozeroy',
-                fillcolor=rgb_hex + '40'
+                fillcolor=rgba_fill  # Utiliser rgba() au lieu de concaténer
             ))
             
             fig.update_layout(
@@ -953,7 +957,9 @@ class CompletePeriodicTableDashboard:
                 xaxis=dict(title="Longueur d'onde (nm)"),
                 yaxis=dict(title="Intensité relative"),
                 height=250,
-                showlegend=False
+                showlegend=False,
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)'
             )
             
             st.plotly_chart(fig, use_container_width=True)
